@@ -12,9 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    $table->id();
+
+    $table->string('title');
+    $table->text('description');
+
+    $table->string('category'); // şimdilik enum gibi kullanacağız
+
+    $table->dateTime('event_date');
+
+    $table->string('status'); // upcoming, on_sale, finished
+
+    $table->decimal('price', 8, 2);
+
+    $table->string('image_path')->nullable();
+
+    // FOREIGN KEYS
+    $table->foreignId('venue_id')->constrained()->onDelete('cascade');
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+    $table->timestamps();
+});
     }
 
     /**

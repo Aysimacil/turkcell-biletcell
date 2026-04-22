@@ -35,4 +35,8 @@ class User extends Authenticatable
             'is_turkcell' => 'boolean',
         ];
     }
+     public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }
