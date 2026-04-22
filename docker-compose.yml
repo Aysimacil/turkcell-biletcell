@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    container_name: laravel_app
+    working_dir: /var/www
+    volumes:
+      - ./biletcell:/var/www
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: tail -f /dev/null
+
+  db:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: biletcell
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
