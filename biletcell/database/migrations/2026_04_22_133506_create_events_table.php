@@ -21,7 +21,8 @@ return new class extends Migration
 
     $table->dateTime('event_date');
 
-    $table->string('status'); // upcoming, on_sale, finished
+    // Migration içinde
+    $table->string('status')->default('upcoming');
 
     $table->decimal('price', 8, 2);
 

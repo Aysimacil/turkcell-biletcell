@@ -27,4 +27,18 @@ class Event extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function scopeFilter($query, array $filters)
+{
+    // Kategoriye göre filtrele
+    $query->when($filters['category'] ?? null, function ($query, $category) {
+        $query->where('category', $category);
+    });
+
+    // Şehre göre filtrele (Venue üzerinden)
+    $query->when($filters['city'] ?? null, function ($query, $city) {
+        $query->whereHas('venue', function ($q) use ($city) {
+            $q->where('city', 'like', '%' . $city . '%');
+        });
+    });
+}
 }
