@@ -23,7 +23,7 @@
                 <p class="text-gray-600 leading-relaxed">{{ $event->description }}</p>
             </div>
 
-            <a href="#" class="block w-full mt-8 bg-blue-600 text-white text-center py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition">
+            <a href="{{ route('events.selectSeat', $event->id) }}" class="block w-full mt-8 bg-blue-600 text-white text-center py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition">
                 Koltuk Seçimine Git
             </a>
         </div>

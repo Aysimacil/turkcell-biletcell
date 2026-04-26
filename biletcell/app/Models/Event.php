@@ -17,6 +17,9 @@ class Event extends Model
         'venue_id',
         'user_id'
     ];
+    protected $casts = [
+        'event_date' => 'datetime',
+    ];
 
     public function venue()
     {
@@ -40,5 +43,9 @@ class Event extends Model
             $q->where('city', 'like', '%' . $city . '%');
         });
     });
+}
+public function tickets()
+{
+    return $this->hasMany(Ticket::class);
 }
 }

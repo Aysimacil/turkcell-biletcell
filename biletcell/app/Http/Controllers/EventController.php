@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
+
  public function index(Request $request)
 {
     $events = \App\Models\Event::with('venue')
@@ -23,6 +24,7 @@ public function create()
 }
 public function store(Request $request)
 {
+    
     // 1. Verileri doğrula
     $validated = $request->validate([
         'title' => 'required|max:255',
@@ -53,5 +55,12 @@ public function show(\App\Models\Event $event)
     $event->load(['venue', 'user']);
 
     return view('events.show', compact('event'));
+}
+public function selectSeat(Event $event)
+{
+    // Bu etkinliğe ait satılmış biletlerin koltuk numaralarını çekiyoruz
+    $occupiedSeats = $event->tickets()->pluck('seat_number')->toArray();
+
+    return view('events.seats', compact('event', 'occupiedSeats'));
 }
 }

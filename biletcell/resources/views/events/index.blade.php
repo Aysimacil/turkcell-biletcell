@@ -23,6 +23,14 @@
                     <a href="{{ route('events.show', $event->id) }}" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">İncele</a>
                 </div>
             </div>
+            <a href="#" class="text-gray-300 hover:text-orange-500 font-bold"
+   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+    Çıkış Yap
+</a>
+
+<form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+    @csrf
+</form>
         </div>
         @endforeach
     </div>
