@@ -1,37 +1,73 @@
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-8 text-orange-600">BiletCell Etkinlik Keşfet</h1>
-    <div class="flex gap-4 mb-8">
-    <a href="/events" class="px-4 py-2 bg-gray-200 rounded-full">Hepsi</a>
-    <a href="/events?category=Konser" class="px-4 py-2 bg-orange-100 text-orange-600 rounded-full">Konserler</a>
-    <a href="/events?category=Tiyatro" class="px-4 py-2 bg-blue-100 text-blue-600 rounded-full">Tiyatrolar</a>
+@extends('layouts.app')
 
-    <a href="/events?city=Adana" class="px-4 py-2 border border-gray-300 rounded-full">Adana</a>
-</div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        @foreach($events as $event)
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-            <img src="{{ asset('storage/' . $event->image_path) }}" class="w-full h-48 object-cover">
+@section('title', 'Etkinlik Keşfet')
 
-            <div class="p-4">
-                <span class="text-xs font-bold text-blue-500 uppercase">{{ $event->category }}</span>
-                <h2 class="text-xl font-semibold mt-2">{{ $event->title }}</h2>
-                <p class="text-gray-600 text-sm mt-1">📍 {{ $event->venue->title }} / {{ $event->venue->city }}</p>
-                <p class="text-gray-500 text-xs mt-2">📅 {{ $event->event_date }}</p>
-
-                <div class="mt-4 flex justify-between items-center">
-                    <span class="text-lg font-bold text-green-600">{{ $event->price }} ₺</span>
-                    <a href="{{ route('events.show', $event->id) }}" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600">İncele</a>
-                </div>
-            </div>
-            <a href="#" class="text-gray-300 hover:text-orange-500 font-bold"
-   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-    Çıkış Yap
-</a>
-
-<form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-    @csrf
-</form>
-        </div>
-        @endforeach
+@section('content')
+<section class="hero">
+  <div class="slide active">
+    <img class="slide-bg" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1600&q=80" alt="Hero" />
+    <div class="slide-overlay"></div><div class="slide-overlay2"></div>
+    <div class="slide-content">
+      <div class="badge badge-yellow">⚡ Turkcell Ayrıcalığı</div>
+      <h1 class="slide-title">En Sevdiğin Etkinlikler<br/><span class="highlight">BiletCell'de</span></h1>
+      <p class="slide-desc">Turkcell abonesiysen tüm biletlerde anında %10 indirim seni bekliyor. Şehrindeki en iyi konser ve tiyatroları keşfet.</p>
+      <div class="slide-actions">
+        <a href="#events" class="btn btn-primary btn-lg">🎫 Hemen Keşfet</a>
+      </div>
     </div>
+  </div>
+</section>
+
+<div class="filter-bar">
+  <div class="filter-bar-inner">
+    <a href="/events" class="cat-btn {{ !request('category') ? 'active' : '' }}"><span class="icon">✨</span>Tümü</a>
+    <a href="/events?category=Konser" class="cat-btn {{ request('category') == 'Konser' ? 'active' : '' }}"><span class="icon">🎵</span>Konser</a>
+    <a href="/events?category=Tiyatro" class="cat-btn {{ request('category') == 'Tiyatro' ? 'active' : '' }}"><span class="icon">🎭</span>Tiyatro</a>
+    <div class="filter-divider"></div>
+    <a href="/events?city=Adana" class="filter-select">📍 Adana</a>
+  </div>
 </div>
+
+<section id="events">
+  <div class="container">
+    <div class="flex-header section-header">
+      <div>
+        <div class="section-label">GÜNCEL</div>
+        <h2 class="section-title">Yaklaşan <span>Etkinlikler</span></h2>
+      </div>
+    </div>
+
+    <div class="events-grid" id="eventsGrid">
+      @foreach($events as $event)
+      <div class="event-card fade-up">
+        <div class="event-card-img">
+          {{-- İlk kodundaki 'image_path' ismini kullanıyoruz --}}
+          <img src="{{ asset('storage/' . $event->image_path) }}" alt="{{ $event->title }}" />
+          <div class="event-card-overlay"></div>
+          <div class="event-card-badge"><span class="badge badge-yellow">{{ $event->category }}</span></div>
+        </div>
+
+        <div class="event-card-body">
+          <div class="event-card-meta">
+            {{-- Tarih ve Mekan bilgilerini ilk kodundaki değişkenlerle eşledik --}}
+            <div class="event-card-meta-item"><span>📅</span> {{ $event->event_date }}</div>
+            <div class="event-card-meta-item"><span>📍</span> {{ $event->venue->city ?? 'Şehir Belirtilmedi' }}</div>
+          </div>
+
+          <div class="event-card-title">{{ $event->title }}</div>
+
+          <div class="event-card-footer">
+            <div class="event-price">
+              <span class="event-price-from">BAŞLANGIÇ</span>
+              <span class="event-price-amount">₺{{ number_format($event->price, 0, ',', '.') }}</span>
+            </div>
+            {{-- Route ismini kontrol et: events.show --}}
+            <a href="{{ route('events.show', $event->id) }}" class="btn btn-primary btn-sm">Bilet Al</a>
+          </div>
+        </div>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</section>
+@endsection

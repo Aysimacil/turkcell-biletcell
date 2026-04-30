@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\ProfileController;
 
 // --- Herkese Açık Rotalar ---
-Route::get('/', function () { return view('welcome'); });
+Route::get('/', [EventController::class, 'index'])->name('home');
 
 // --- Auth (Giriş / Kayıt) Rotaları ---
 Route::get('/login', function() { return view('auth.login'); })->name('login');
