@@ -477,7 +477,7 @@
 
                 {{-- Checkout button --}}
                 <form action="{{ route('tickets.store') }}" method="POST">
-                    @csrf
+    @csrf
                     <input type="hidden" name="event_id"    value="{{ $event->id }}">
                     <input type="hidden" name="seat_numbers" :value="selectedSeats.join(',')">
                     <input type="hidden" name="price"       value="{{ $event->price }}">

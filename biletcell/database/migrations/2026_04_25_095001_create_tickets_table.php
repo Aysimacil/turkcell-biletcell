@@ -25,6 +25,7 @@ return new class extends Migration
         $table->string('status')->default('confirmed'); // Ödeme sonrası onaylı bilet
 
         $table->timestamps();
+        $table->string('transaction_id')->nullable();
 
         // KRİTİK: Bir etkinlikte aynı koltuk numarasından sadece bir tane olabilir.
         $table->unique(['event_id', 'seat_number']);

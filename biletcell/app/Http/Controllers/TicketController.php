@@ -9,49 +9,65 @@ use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
-   public function store(Request $request)
-{
-    $seats = explode(',', $request->seat_numbers);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'event_id'     => 'required|exists:events,id',
+            'seat_numbers' => 'required|string',
+        ]);
 
-    if (count($seats) > 4) {
-        return back()->with('error', 'Bir seferde en fazla 4 bilet alabilirsiniz.');
-    }
+        $seats = array_map('trim', explode(',', $request->seat_numbers));
+        $seats = array_filter($seats); // Boş elemanları temizle
 
-    try {
-        // Değişkeni döngü dışında tanımlıyoruz ki return kısmında ulaşabilelim
-        $lastTicket = null;
+        if (count($seats) > 4) {
+            return back()->with('error', 'Bir seferde en fazla 4 bilet alabilirsiniz.');
+        }
 
-        return DB::transaction(function () use ($request, $seats, &$lastTicket) {
-            foreach ($seats as $seat) {
-                $exists = Ticket::where('event_id', $request->event_id)
-                                ->where('seat_number', $seat)
-                                ->exists();
+        // FIX #1: Fiyatı formdan değil, veritabanından çekiyoruz (manipülasyon önleme)
+        $event = Event::findOrFail($request->event_id);
+        $totalPrice = $event->price * count($seats);
 
-                if ($exists) {
-                    throw new \Exception("Koltuk $seat az önce başkası tarafından alındı!");
+        try {
+            $ticket = DB::transaction(function () use ($request, $seats, $totalPrice, $event) {
+
+                foreach ($seats as $seat) {
+                    // FIX #2: lockForUpdate() ile race condition önleniyor
+                    $exists = Ticket::where('event_id', $request->event_id)
+                                    ->where('seat_number', $seat)
+                                    ->whereIn('status', ['confirmed', 'paid', 'pending'])
+                                    ->lockForUpdate()
+                                    ->exists();
+
+                    if ($exists) {
+                        throw new \Exception("Koltuk $seat az önce başkası tarafından alındı!");
+                    }
                 }
 
-                // Her seferinde $lastTicket değişkenini güncelliyoruz
-                $lastTicket = Ticket::create([
-                    'user_id' => auth()->id(),
-                    'event_id' => $request->event_id,
-                    'seat_number' => $seat,
-                    'price' => $request->price,
-                    'status' => 'confirmed',
+                $newTicket = Ticket::create([
+                    'user_id'     => auth()->id(),
+                    'event_id'    => $request->event_id,
+                    'seat_number' => implode(', ', $seats),
+                    'price'       => $totalPrice, // Veritabanından gelen güvenli fiyat
+                    'status'      => 'pending',
                 ]);
-            }
 
-            // Döngü bitti, elimizde en son oluşturulan biletin ID'si var
-            return redirect()->route('tickets.success', $lastTicket->id)
-                             ->with('success', count($seats) . ' adet biletiniz başarıyla rezerve edildi!');
-        });
-    } catch (\Exception $e) {
-        return back()->with('error', $e->getMessage());
+                return $newTicket;
+            });
+
+            return redirect()->route('payment.form', ['ticket' => $ticket->id]);
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
-}
+
     public function success(Ticket $ticket)
     {
-        // Bilet detaylarını ve QR kodun görüneceği sayfa
+        // FIX #3: Sadece bilete sahip olan kullanıcı görebilir
+        if ($ticket->user_id !== auth()->id()) {
+            abort(403, 'Bu bileti görüntüleme yetkiniz yok.');
+        }
+
         return view('tickets.success', compact('ticket'));
     }
 }

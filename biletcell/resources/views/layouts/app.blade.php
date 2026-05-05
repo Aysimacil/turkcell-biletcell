@@ -99,8 +99,8 @@
 
     /* ── HERO ── */
     .hero { position: relative; height: 92vh; min-height: 640px; max-height: 900px; overflow: hidden; margin-top: 112px; }
-    .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; }
-    .slide.active { opacity: 1; }
+    .slide { position: relative; inset: 0; opacity: 1; transition: opacity 0.9s ease; }
+
     .slide-bg { width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); transition: transform 8s ease; filter: brightness(0.45) saturate(0.8); }
     .slide.active .slide-bg { transform: scale(1); }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(6,9,15,0.97) 0%, rgba(6,9,15,0.75) 40%, rgba(6,9,15,0.2) 100%); }
@@ -378,6 +378,7 @@
         <button type="submit" class="btn btn-navy btn-sm">Çıkış</button>
     </form>
   @endguest
+  
 </div>
   </div>
 </header>
