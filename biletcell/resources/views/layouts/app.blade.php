@@ -9,6 +9,155 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
+    .user-menu {
+    position: relative;
+}
+
+.user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px 6px 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+}
+.user-trigger:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.14);
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #F5C518;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #E8EAF0;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-chevron {
+    color: #5A6072;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+.user-menu.open .user-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown kutu */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 210px;
+    background: #0E1520;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 9999;
+}
+.user-menu.open .user-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+/* Dropdown üst bilgi */
+.dropdown-info {
+    padding: 10px 12px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 4px;
+}
+.dropdown-info-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #E8EAF0;
+}
+.dropdown-info-role {
+    font-size: 11px;
+    color: #5A6072;
+    margin-top: 2px;
+}
+
+/* Dropdown öğeleri */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #A0A8B8;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-family: inherit;
+}
+.dropdown-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: #E8EAF0;
+}
+.dropdown-item svg {
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+.dropdown-item:hover svg {
+    opacity: 1;
+}
+
+/* Çıkış butonu ayrımı */
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 4px 0;
+}
+.dropdown-item.danger { color: #FF7A8A; }
+.dropdown-item.danger:hover { background: rgba(255,77,106,0.08); color: #FF4D6A; }
+.dropdown-item.danger svg { opacity: 0.7; }
+
+/* Rol rozeti — dropdown info kısmı */
+.role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.role-pill.admin      { background: rgba(255,77,106,0.15);  color: #FF7A8A; }
+.role-pill.organizer  { background: rgba(77,158,255,0.15);  color: #7AB8FF; }
+.role-pill.customer   { background: rgba(0,229,160,0.12);   color: #00E5A0; }
     /* biletcell.html içindeki tüm CSS kodlarını ( <style> etiketleri arası ) buraya yapıştır */
          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -368,17 +517,81 @@
 
    <!-- app.blade.php içindeki header-actions kısmını şu şekilde güncelle -->
 <div class="header-actions">
-  @guest
-    <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Giriş Yap</a>
-    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Üye Ol</a>
-  @else
-    <div class="tc-badge"><div class="tc-dot"></div>{{ Auth::user()->name }}</div>
-    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit" class="btn btn-navy btn-sm">Çıkış</button>
-    </form>
-  @endguest
-  
+    @guest
+        <a href="{{ route('login') }}"    class="btn btn-outline btn-sm">Giriş Yap</a>
+        <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Üye Ol</a>
+    @else
+        {{-- KULLANICI MENÜSÜ --}}
+        <div class="user-menu" id="userMenu">
+            <div class="user-trigger" id="userTrigger">
+                <div class="user-avatar">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                </div>
+                <span class="user-name">{{ Auth::user()->name }}</span>
+                <svg class="user-chevron" width="14" height="14" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
+
+            <div class="user-dropdown" id="userDropdown">
+
+                {{-- Üst bilgi --}}
+                <div class="dropdown-info">
+                    <div class="dropdown-info-name">{{ Auth::user()->name }}</div>
+                    <div class="dropdown-info-role" style="margin-top:4px;">
+                        <span class="role-pill {{ Auth::user()->role }}">
+                            @if(Auth::user()->role === 'admin')      ★ Admin
+                            @elseif(Auth::user()->role === 'organizer') ◆ Organizatör
+                            @else                                        ✦ Üye
+                            @endif
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Biletlerim — herkese göster --}}
+                <a href="{{ route('profile.tickets') }}" class="dropdown-item">
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                    </svg>
+                    Biletlerim
+                </a>
+
+                {{-- Role göre panel linki --}}
+                @if(Auth::user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        Admin Paneli
+                    </a>
+                @elseif(Auth::user()->role === 'organizer')
+                    <a href="{{ route('organizer.dashboard') }}" class="dropdown-item">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        Organizatör Paneli
+                    </a>
+                @endif
+
+                <div class="dropdown-divider"></div>
+
+                {{-- Çıkış --}}
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="dropdown-item danger">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Çıkış Yap
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endguest
 </div>
   </div>
 </header>
@@ -394,6 +607,123 @@
 </footer>
 
 <script>
+
+// ── Dropdown ──────────────────────────────────────────
+(function () {
+    const menu    = document.getElementById('userMenu');
+    const trigger = document.getElementById('userTrigger');
+    if (!menu || !trigger) return;
+    trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+    });
+    document.addEventListener('click', function (e) {
+        if (!menu.contains(e.target)) menu.classList.remove('open');
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') menu.classList.remove('open');
+    });
+})();
+
+// ── Sadece ana sayfada çalışacak kodlar ───────────────
+(function () {
+    const header = document.getElementById('header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('scrolled', window.scrollY > 20);
+        });
+    }
+
+    // Slider — sadece .hero varsa
+    const hero = document.querySelector('.hero');
+    const slides = document.querySelectorAll('.slide');
+    const dots   = document.querySelectorAll('.dot');
+    if (hero && slides.length) {
+        let cur = 0, iv;
+        function goSlide(n) {
+            slides[cur].classList.remove('active'); dots[cur].classList.remove('active');
+            cur = (n + slides.length) % slides.length;
+            slides[cur].classList.add('active'); dots[cur].classList.add('active');
+        }
+        function nextSlide() { goSlide(cur + 1); }
+        function startSlider() { iv = setInterval(nextSlide, 5000); }
+        function stopSlider()  { clearInterval(iv); }
+        hero.addEventListener('mouseenter', stopSlider);
+        hero.addEventListener('mouseleave', startSlider);
+        startSlider();
+        window.prevSlide = () => goSlide(cur - 1);
+        window.nextSlide = nextSlide;
+    }
+
+    // Kategori filtresi
+    window.filterCat = function(btn, cat) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#eventsGrid .event-card').forEach(card => {
+            card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+        });
+    };
+
+    // Favori
+    window.toggleFav = function(btn) {
+        btn.classList.toggle('faved');
+        const svg = btn.querySelector('svg');
+        if (btn.classList.contains('faved')) {
+            svg.style.fill = '#ff4d6a'; svg.style.color = '#ff4d6a';
+            showToast('Favorilere eklendi!', 'success');
+        } else {
+            svg.style.fill = 'none'; svg.style.color = '#fff';
+            showToast('Favorilerden çıkarıldı.', 'info');
+        }
+    };
+
+    // Toast
+    window.showToast = function(msg, type) {
+        const c = document.getElementById('toast-container');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = 'toast ' + (type || 'info');
+        t.textContent = msg;
+        c.appendChild(t);
+        requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+        setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
+    };
+
+    // Fade-up observer
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+    // Sayaç animasyonu
+    function animateCount(el) {
+        const target = parseInt(el.dataset.target); let c = 0;
+        const step = target / 120;
+        const t = setInterval(() => {
+            c += step; if (c >= target) { c = target; clearInterval(t); }
+            el.textContent = target > 10000 ? Math.floor(c).toLocaleString('tr-TR') : Math.floor(c);
+        }, 16);
+    }
+    const statObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.querySelectorAll('.stat-number').forEach(animateCount); statObs.unobserve(e.target); } });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.stats-grid').forEach(el => statObs.observe(el));
+
+    // Arama
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.event-card').forEach(card => {
+                const title = card.querySelector('.event-card-title')?.textContent.toLowerCase() || '';
+                card.style.display = (!q || title.includes(q)) ? '' : 'none';
+            });
+        });
+    }
+})();
+
+
+
   // biletcell.html içindeki Header Scroll ve Toast scriptlerini buraya koy
 const header = document.getElementById('header');
   window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 20); });

@@ -6,6 +6,10 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrganizerController;
+
+
 
 // --- Herkese Açık Rotalar ---
 Route::get('/', [EventController::class, 'index'])->name('home');
@@ -20,7 +24,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // --- Sadece Giriş Yapanların (Müşteri/Admin/Organizer) Erişebileceği Rotalar ---
 Route::middleware(['auth'])->group(function () {
+// Admin
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    });
 
+    // Organizatör
+    Route::middleware('role:organizer,admin')->group(function () {
+        Route::get('/organizer/dashboard', [OrganizerController::class, 'index'])->name('organizer.dashboard');
+        // ... mevcut events create/store route'ları buraya taşınabilir
+    });
     // Ödeme Formu ve İşlemi (Bilet ID bekler)
     Route::get('/payment/{ticket}', [PaymentController::class, 'showForm'])->name('payment.form');
     Route::post('/payment/{ticket}', [PaymentController::class, 'process'])->name('payment.process');
@@ -41,3 +54,17 @@ Route::middleware(['auth', 'role:organizer,admin'])->group(function () {
 });
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::patch('/admin/users/{user}/role', [AdminController::class, 'changeRole'])->name('admin.changeRole');
+    Route::delete('/admin/events/{event}', [AdminController::class, 'deleteEvent'])->name('admin.deleteEvent');
+});
+Route::middleware(['auth', 'role:organizer,admin'])->group(function () {
+    Route::get('/organizer/dashboard', [OrganizerController::class, 'index'])->name('organizer.dashboard');
+    Route::delete('/organizer/events/{event}', [OrganizerController::class, 'destroy'])->name('organizer.destroy');
+    Route::patch('/organizer/events/{event}/archive', [OrganizerController::class, 'archive'])->name('organizer.archive');
+Route::get('/events/{event}/edit',    [EventController::class, 'edit'])   ->name('events.edit');
+Route::put('/events/{event}',         [EventController::class, 'update']) ->name('events.update');
+
+});
