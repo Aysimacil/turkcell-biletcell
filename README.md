@@ -3,16 +3,20 @@
 **Turkcell CodeNight 2026** - A modern full-stack ticketing platform where users can discover events, select interactive seats, and purchase digital tickets with QR code validation.
 
 ---
-
 ## 📸 Screenshots
 
-| Home Page | Seat Selection | Digital Ticket |
-| :---: | :---: | :---: |
-| ![Home](screenshots/home.png) | ![Seats](screenshots/seats.png) | ![Tickets](screenshots/tickets.png) |
+### Core User Flow
+<p align="center">
+  <img src="screenshots/home.png" height="250" alt="Home Page">
+  <img src="screenshots/seats.png" height="250" alt="Seat Selection">
+  <img src="screenshots/tickets.png" height="250" alt="Digital Ticket">
+</p>
 
-| Admin Dashboard | Organizer Panel |
-| :---: | :---: |
-| ![Admin](screenshots/adminpanel.png) | ![Organizer](screenshots/organizatorpanel.png) |
+### Management Dashboards
+<p align="center">
+  <img src="screenshots/adminpanel.png" height="250" alt="Admin Panel">
+  <img src="screenshots/organizatorpanel.png" height="250" alt="Organizer Panel">
+</p>
 
 ---
 
