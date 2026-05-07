@@ -81,5 +81,5 @@
 
 ---
 
-## 👥 Project Team
+
 * **Aysima:** Full Stack Development, Database Design & Docker Orchestration
